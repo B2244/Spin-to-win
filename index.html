@@ -152,3 +152,75 @@
     </script>
 </body>
 </html>
+<div class="wheel-container">
+  <img id="lucky-wheel" src="wheel.png" alt="Wheel">
+  <button id="spin-btn" onclick="spinWheel()">SPIN</button>
+</div>
+.wheel-container {
+    position: relative;
+    width: 300px; /* እንደ ፍላጎትህ አስተካክለው */
+    text-align: center;
+}
+.pointer {
+    font-size: 32px;
+    color: red;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+#wheel-img {
+    width: 100%;
+    /* ለ5 ሰከንድ በለስላሳ ሁኔታ እንዲሽከረከር ያደርጋል */
+    transition: transform 5s ease-out; 
+}
+let currentRotation = 0;
+let isSpinning = false;
+
+// 1. በምስሉ ላይ ያሉትን ሽልማቶች በቅደም ተከተል እዚህ ይፃፉ (ለምሳሌ 8 ከሆኑ)
+const rewards = [
+    "ሽልማት 1 (አናት ላይ ያለው)", 
+    "ሽልማት 8", 
+    "ሽልማት 7", 
+    "ሽልማት 6", 
+    "ሽልማት 5", 
+    "ሽልማት 4", 
+    "ሽልማት 3", 
+    "ሽልማት 2"
+];
+const totalSegments = rewards.length; // 8
+
+function spinWheel() {
+    if (isSpinning) return; // እየተሽከረከረ ከሆነ ድጋሚ እንዳይነካ መከልከል
+    isSpinning = true;
+    
+    document.getElementById("result-message").innerText = "እየተሽከረከረ ነው...";
+
+    // 2. በዘፈቀደ ብዙ ዙር እንዲዞር ማድረግ (ከ 2000 እስከ 5000 ዲግሪ)
+    const randomDegrees = Math.floor(Math.random() * 3000) + 2000; 
+    currentRotation += randomDegrees;
+
+    // 3. ምስሉን ማሽከርከር
+    const wheel = document.getElementById("wheel-img");
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+    // 4. ማሽከርከሪያው ሲያበቃ (ከ 5 ሰከንድ በኋላ) ውጤቱን ማወቅ
+    setTimeout(() => {
+        isSpinning = false;
+        
+        // ያረፈበትን ትክክለኛ ዲግሪ ማስላት (ከ 0 እስከ 360 ባለው)
+        const actualDegrees = currentRotation % 360;
+        
+        // አንድ ክፍል ስንት ዲግሪ እንደሆነ ማወቅ (360 / 8 = 45 ዲግሪ)
+        const segmentDegrees = 360 / totalSegments;
+        
+        // ቀስቱ ያረፈበትን የሽልማት ቁጥር (Index) ማግኘት
+        const winningIndex = Math.floor(actualDegrees / segmentDegrees);
+        
+        // ውጤቱን በስክሪኑ ላይ ማሳየት
+        const finalReward = rewards[winningIndex];
+        document.getElementById("result-message").innerText = `🎉 እንኳን ደስ አለህ! ${finalReward} ደርሶሃል!`;
+        
+    }, 5000); // 5000 ሚሊሰከንድ ማለት 5 ሰከንድ ነው (ከ CSS transition ጋር አንድ መሆን አለበት)
+}
